@@ -1,0 +1,54 @@
+#
+# Reverse Proxy / Load Balancer
+#
+haproxy:
+  image: haproxy
+  volumes:
+   - haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+  links:
+   - static
+   - api
+  ports:
+   - "80:80"
+   - "70:70"
+
+  expose:
+   - "80"
+   - "70"
+#
+# Static Web Server (SPA)
+#
+static:
+  extends:
+    file: ../spa-client/docker-compose-common.yml
+    service: static
+  ports:
+    - "3000"
+  environment:
+    - STATIC_WEBROOT=./dist
+    - STATIC_STUBS=0
+    - STATIC_API_BASE_URL=http://localdocker/api
+#
+# Web API Server
+#
+api:
+  extends:
+    file: ../spa-api-server/docker-compose-common.yml
+    service: api
+  ports:
+    - "8100"
+  environment:
+    - API_RDB_CONN=db:28015
+    - API_BASE_URL=/api
+  links:
+    - db
+#
+# Database
+#
+db:
+  extends:
+    file: ../spa-api-server/docker-compose-common.yml
+    service: db
+  ports:
+    - "8080:8080"
+    - "28015:28015"
