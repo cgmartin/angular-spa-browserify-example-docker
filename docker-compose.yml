@@ -1,20 +1,37 @@
 #
+# Service Discovery
+#
+consul:
+  # replace advertise IP with main interface ROUTABLE_IP
+  command: -server -bootstrap -advertise 10.0.2.15
+  image: progrium/consul:latest
+  ports:
+   - "8300:8300"
+   - "8400:8400"
+   - "8500:8500"
+   - "8600:53/udp"
+#
+# Service Registry Bridge
+#
+registrator:
+  command: -ip=10.0.2.15 consul://consul:8500
+  image: gliderlabs/registrator:v5
+  links:
+   - consul
+  volumes:
+   - "/var/run/docker.sock:/tmp/docker.sock"
+#
 # Reverse Proxy / Load Balancer
 #
 haproxy:
-  image: haproxy
-  volumes:
-   - haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+  build: haproxy/
   links:
    - static
-   - api
+   - webapi
+   - consul
   ports:
    - "80:80"
    - "70:70"
-
-  expose:
-   - "80"
-   - "70"
 #
 # Static Web Server (SPA)
 #
@@ -28,22 +45,31 @@ static:
     - STATIC_WEBROOT=./dist
     - STATIC_STUBS=0
     - STATIC_API_BASE_URL=http://localdocker/api
+    - SERVICE_PLATFORM=dev
+    - SERVICE_3000_NAME=static
+    - SERVICE_3000_TAGS=frontend
+  links:
+    - consul
 #
 # Web API Server
 #
-api:
+webapi:
   extends:
     file: ../spa-api-server/docker-compose-common.yml
-    service: api
+    service: webapi
   ports:
     - "8100"
   environment:
     - API_RDB_CONN=db:28015
     - API_BASE_URL=/api
+    - SERVICE_PLATFORM=dev
+    - SERVICE_8100_NAME=webapi
+    - SERVICE_8100_TAGS=frontend
   links:
+    - consul
     - db
 #
-# Database
+# Backend Database
 #
 db:
   extends:
