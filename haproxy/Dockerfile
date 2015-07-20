@@ -15,3 +15,4 @@ RUN chmod +x /tmp/reload.sh
 COPY haproxy.ctmpl /etc/consul-templates/haproxy.ctmpl
 
 CMD ["/tmp/startup.sh"]
+

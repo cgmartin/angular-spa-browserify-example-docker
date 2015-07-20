@@ -26,12 +26,15 @@ registrator:
 haproxy:
   build: haproxy/
   links:
-   - static
-   - webapi
    - consul
   ports:
    - "80:80"
    - "70:70"
+  environment:
+   - SERVICE_PLATFORM=dev
+   - SERVICE_TAGS=frontend
+   - SERVICE_80_NAME=haproxy-80
+   - SERVICE_70_NAME=haproxy-70
 #
 # Static Web Server (SPA)
 #
@@ -42,12 +45,13 @@ static:
   ports:
     - "3000"
   environment:
+    - SERVICE_PLATFORM=dev
+    - SERVICE_3000_NAME=static
+    - SERVICE_5800_NAME=static-debug
+    - SERVICE_TAGS=frontend
     - STATIC_WEBROOT=./dist
     - STATIC_STUBS=0
     - STATIC_API_BASE_URL=http://localdocker/api
-    - SERVICE_PLATFORM=dev
-    - SERVICE_3000_NAME=static
-    - SERVICE_3000_TAGS=frontend
   links:
     - consul
 #
@@ -60,11 +64,12 @@ webapi:
   ports:
     - "8100"
   environment:
+    - SERVICE_PLATFORM=dev
+    - SERVICE_TAGS=frontend
+    - SERVICE_8100_NAME=webapi
+    - SERVICE_5810_NAME=webapi-debug
     - API_RDB_CONN=db:28015
     - API_BASE_URL=/api
-    - SERVICE_PLATFORM=dev
-    - SERVICE_8100_NAME=webapi
-    - SERVICE_8100_TAGS=frontend
   links:
     - consul
     - db
