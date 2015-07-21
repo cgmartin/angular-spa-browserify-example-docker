@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 
 HAPROXY="/usr/local/etc/haproxy"
-PIDFILE="/var/run/haproxy.pid"
-CONFIG_FILE="${HAPROXY}/haproxy.cfg"
+HAPROXY_PIDFILE="/var/run/haproxy.pid"
+HAPROXY_CFG="${HAPROXY}/haproxy.cfg"
 
-/usr/local/sbin/haproxy -f "$CONFIG_FILE" -p "$PIDFILE" -D -sf $(cat $PIDFILE)
+/usr/local/sbin/haproxy -f "$HAPROXY_CFG" -p "$HAPROXY_PIDFILE" -D -sf $(cat $HAPROXY_PIDFILE)
 
 exit 0

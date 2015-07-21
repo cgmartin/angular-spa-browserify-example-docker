@@ -1,16 +1,18 @@
 #!/usr/bin/env sh
 
 HAPROXY="/usr/local/etc/haproxy"
-PIDFILE="/var/run/haproxy.pid"
-CONFIG_FILE="${HAPROXY}/haproxy.cfg"
+HAPROXY_PIDFILE="/var/run/haproxy.pid"
+HAPROXY_CFG="${HAPROXY}/haproxy.cfg"
+HAPROXY_CTMPL="/etc/consul-templates/haproxy.ctmpl"
 
-/usr/local/bin/consul-template -consul=consul:8500 \
-      -template "/etc/consul-templates/haproxy.ctmpl:${CONFIG_FILE}" \
+CONSUL_TEMPLATE_CMD="/usr/local/bin/consul-template -consul=consul:8500"
+eval $CONSUL_TEMPLATE_CMD \
+      -template "${HAPROXY_CTMPL}:${HAPROXY_CFG}" \
       -once
 
 cd "$HAPROXY"
 
-/usr/local/sbin/haproxy -f "$CONFIG_FILE" -p "$PIDFILE" -D
+/usr/local/sbin/haproxy -f "$HAPROXY_CFG" -p "$HAPROXY_PIDFILE" -D
 
-/usr/local/bin/consul-template -consul=consul:8500 \
-      -template "/etc/consul-templates/haproxy.ctmpl:${CONFIG_FILE}:/tmp/reload.sh"
+eval $CONSUL_TEMPLATE_CMD \
+      -template "${HAPROXY_CTMPL}:${HAPROXY_CFG}:/tmp/reload.sh"
