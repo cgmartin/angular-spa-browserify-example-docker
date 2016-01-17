@@ -1,5 +1,7 @@
 # angular-spa-browserify-example-docker
 
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 Orchestration of [angular-spa-browserify-example](https://github.com/cgmartin/angular-spa-browserify-example)
 services via docker-compose, haproxy, consul, and registrator.
 
